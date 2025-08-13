@@ -1,12 +1,12 @@
-Question: What types of testing are included as part of structural database testing?
+Question: You are configuring a NeoLoad project. On the NeoLoad project page, which tabs are present for configuring the project?
 Instruction: Choose all options that best answer the question. 
 
-Confirm user roles
+Tools
 
-Test stored procedures
+User Paths
 
-Test database triggers
+Users
 
-Validate transactions
+Monitors
 
-Test database schema
+Populations
