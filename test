@@ -1,0 +1,10 @@
+Question: Which of these are typical objectives of load testing?
+Instruction: Choose all options that best answer the question. 
+
+Determine the types of tests to run against the application
+
+Determine the maximum number of users supported
+
+Determine average operating specification
+
+Determine how the system operates at peak user load
