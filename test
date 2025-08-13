@@ -1,12 +1,12 @@
-Question: You are configuring a NeoLoad project. On the NeoLoad project page, which tabs are present for configuring the project?
+Question: You have created an API test case in SoapUI. You have opened the Add Assertion dialog for the test case. Which type of assertions are available under Assertions in the Add Assertion dialog?
 Instruction: Choose all options that best answer the question. 
 
-Tools
+Script
 
-User Paths
+REST
 
-Users
+Property Content
 
-Monitors
+XML
 
-Populations
+Security
