@@ -1,12 +1,10 @@
-Question: You have created an API test case in SoapUI. You have opened the Add Assertion dialog for the test case. Which type of assertions are available under Assertions in the Add Assertion dialog?
+Question: Which of these statements accurately describe Katalon mobile testing?
 Instruction: Choose all options that best answer the question. 
 
-Script
+Does not support SSL
 
-REST
+Integrates Kobiton platform
 
-Property Content
+Supports cookies
 
-XML
-
-Security
+Avoids using locators
