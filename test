@@ -1,18 +1,12 @@
-Câmp
-Conținut exemplu
-Test Case ID
-TC_LOGIN_001
-Test Case Description
-Verificarea autentificării cu date valide
-Conditions
-Utilizatorul are deja un cont creat în aplicație și conexiune activă la internet
-Test Steps
-1. Accesează pagina principală a aplicației2. Click pe butonul „Login”3. Introdu adresa de email validă în câmpul „Email”4. Introdu parola validă în câmpul „Parolă”5. Click pe butonul „Autentificare”
-Expected Result
-Utilizatorul este autentificat și redirecționat către dashboard-ul personal
-Date of Creation
-13-Aug-2025
-Created By
-[Nume Tester]
-Comments
-Este important să fie testate și conturi cu diferite permisiuni (admin, user standard)
+Question: Which of these are valid automation testing frameworks?
+Instruction: Choose all options that best answer the question. 
+
+Data driven
+
+Keyword driven
+
+Component
+
+Modular
+
+Event driven
