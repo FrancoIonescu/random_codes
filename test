@@ -1,10 +1,12 @@
-Question: Which of these are typical objectives of load testing?
+Question: What types of testing are included as part of structural database testing?
 Instruction: Choose all options that best answer the question. 
 
-Determine the types of tests to run against the application
+Confirm user roles
 
-Determine the maximum number of users supported
+Test stored procedures
 
-Determine average operating specification
+Test database triggers
 
-Determine how the system operates at peak user load
+Validate transactions
+
+Test database schema
