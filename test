@@ -1,8 +1,18 @@
-Test Case ID | Each test case should have a unique ID
-Test Case Description | Each test case should be intuitive
-Conditions | Conditions that need to be fulfilled when executing the test steps
-Test Steps | What are the steps that need to be followed
-Expected Result | What result is expected after executing the steps
-Date of Creation | Test Case Date
-Created By | Test Case Author
-Comments | Additional Information
+Câmp
+Conținut exemplu
+Test Case ID
+TC_LOGIN_001
+Test Case Description
+Verificarea autentificării cu date valide
+Conditions
+Utilizatorul are deja un cont creat în aplicație și conexiune activă la internet
+Test Steps
+1. Accesează pagina principală a aplicației2. Click pe butonul „Login”3. Introdu adresa de email validă în câmpul „Email”4. Introdu parola validă în câmpul „Parolă”5. Click pe butonul „Autentificare”
+Expected Result
+Utilizatorul este autentificat și redirecționat către dashboard-ul personal
+Date of Creation
+13-Aug-2025
+Created By
+[Nume Tester]
+Comments
+Este important să fie testate și conturi cu diferite permisiuni (admin, user standard)
