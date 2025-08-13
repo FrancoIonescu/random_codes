@@ -1,10 +1,8 @@
-Question: Which of these statements accurately describe Katalon mobile testing?
-Instruction: Choose all options that best answer the question. 
-
-Does not support SSL
-
-Integrates Kobiton platform
-
-Supports cookies
-
-Avoids using locators
+Test Case ID | Each test case should have a unique ID
+Test Case Description | Each test case should be intuitive
+Conditions | Conditions that need to be fulfilled when executing the test steps
+Test Steps | What are the steps that need to be followed
+Expected Result | What result is expected after executing the steps
+Date of Creation | Test Case Date
+Created By | Test Case Author
+Comments | Additional Information
