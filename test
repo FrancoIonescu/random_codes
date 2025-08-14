@@ -1,10 +1,10 @@
-Question: What artifacts of com.apigee.edge can we use to download all the required API dependencies?
+Question: Select the tools that we can use to implement API management.
 Instruction: Choose all options that best answer the question. 
 
-Data-flow
+Jenkins
 
-Message-flow
+Akana
 
-Exception
+3scale
 
-Expressions
+Git
