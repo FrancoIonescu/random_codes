@@ -1,10 +1,10 @@
-Question: Specify the framework libraries that are required to test websites by setting up the invocationCount and threadPoolSize attributes.
+Question: Select the critical category of bugs that we have to manage while testing applications.
 Instruction: Choose all options that best answer the question. 
 
-FirefoxDriver
+Critical
 
-BrowserDom
+Non-critical
 
-TestNG
+Medium
 
-Selenium
+Error
