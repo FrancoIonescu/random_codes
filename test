@@ -1,10 +1,10 @@
-Question: Select the tools that we can use to implement API management.
+Question: Identify some of the prominent generic APIs.
 Instruction: Choose all options that best answer the question. 
 
-Jenkins
+Database API
 
-Akana
+Consumer API
 
-3scale
+GUI API
 
-Git
+Integration API
