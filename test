@@ -1,10 +1,10 @@
-Question: Recall some of the prominent features of Selenium.
+Question: Identify the components of Unit testing frameworks.
 Instruction: Choose all options that best answer the question. 
 
-Can be integrated with Watir & Capybara
+Test files
 
-Supports multiple browsers on different platforms
+Assertions
 
-Support for multiple programming languages
+Test case
 
-Provides playback tool to author functional tests
+Annotations
