@@ -1,10 +1,10 @@
-Question: Identify the type of keys that we can use to maximize API security with authentication and authorization.
+Question: Recall some of the prominent refactoring techniques that we can use to develop testable codes.
 Instruction: Choose all options that best answer the question. 
 
-PPK keys
+User interface refactoring
 
-Pem keys
+Static refactoring
 
-Symmetric keys
+Preparatory refactoring
 
-Asymmetric keys
+Dynamic UI refactoring
