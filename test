@@ -1,10 +1,10 @@
-Question: Recall some of the prominent refactoring techniques that we can use to develop testable codes.
+Question: Specify some of the essential benefits afforded with the use of test automation frameworks.
 Instruction: Choose all options that best answer the question. 
 
-User interface refactoring
+Automatic method executions
 
-Static refactoring
+Elasticity
 
-Preparatory refactoring
+Minimal manual intervention
 
-Dynamic UI refactoring
+Simplified scripting
