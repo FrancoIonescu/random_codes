@@ -1,10 +1,10 @@
-Question: Recall some of the benefits of API management.
+Question: Identify the type of keys that we can use to maximize API security with authentication and authorization.
 Instruction: Choose all options that best answer the question. 
 
-Usage of premium APIs at minimum cost
+PPK keys
 
-Delivers better ROI for enterprises
+Pem keys
 
-Promotion of shared services
+Symmetric keys
 
-Enables database portability
+Asymmetric keys
