@@ -1,10 +1,10 @@
-Question: Which of these elements are required to implement API management with AWS API Gateway Service?
+Question: Recall some of the benefits of API management.
 Instruction: Choose all options that best answer the question. 
 
-Lambda-cache
+Usage of premium APIs at minimum cost
 
-Lambda
+Delivers better ROI for enterprises
 
-Proxy
+Promotion of shared services
 
-API Gateway cached for TTL
+Enables database portability
