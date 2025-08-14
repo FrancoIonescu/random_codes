@@ -1,10 +1,10 @@
-Question: Identify the valid keywords that we can use to write Unit tests with Mocha and Chai.
+Question: Specify the framework libraries that are required to test websites by setting up the invocationCount and threadPoolSize attributes.
 Instruction: Choose all options that best answer the question. 
 
-try
+FirefoxDriver
 
-it
+BrowserDom
 
-describe
+TestNG
 
-test
+Selenium
