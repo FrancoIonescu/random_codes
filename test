@@ -1,12 +1,10 @@
-Question: Which of these are valid automation testing frameworks?
+Question: What artifacts of com.apigee.edge can we use to download all the required API dependencies?
 Instruction: Choose all options that best answer the question. 
 
-Data driven
+Data-flow
 
-Keyword driven
+Message-flow
 
-Component
+Exception
 
-Modular
-
-Event driven
+Expressions
