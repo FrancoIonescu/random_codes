@@ -1,10 +1,10 @@
-Question: Identify some of the prominent generic APIs.
+Question: Which of these elements are required to implement API management with AWS API Gateway Service?
 Instruction: Choose all options that best answer the question. 
 
-Database API
+Lambda-cache
 
-Consumer API
+Lambda
 
-GUI API
+Proxy
 
-Integration API
+API Gateway cached for TTL
