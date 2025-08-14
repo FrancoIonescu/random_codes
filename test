@@ -1,10 +1,10 @@
-Question: Specify some of the essential benefits afforded with the use of test automation frameworks.
+Question: Recall some of the prominent features of Selenium.
 Instruction: Choose all options that best answer the question. 
 
-Automatic method executions
+Can be integrated with Watir & Capybara
 
-Elasticity
+Supports multiple browsers on different platforms
 
-Minimal manual intervention
+Support for multiple programming languages
 
-Simplified scripting
+Provides playback tool to author functional tests
