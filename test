@@ -1,10 +1,10 @@
-Question: Select the critical category of bugs that we have to manage while testing applications.
+Question: Specify some of the essential features of JUnit.
 Instruction: Choose all options that best answer the question. 
 
-Critical
+JUnit provides test fixtures for sharing common test data
 
-Non-critical
+JUnit supports annotation, parameterized, and data-driven testing
 
-Medium
+JUnit includes assertions for testing expected results
 
-Error
+JUnit supports flexible verification or stubbing
