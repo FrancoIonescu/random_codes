@@ -1,10 +1,61 @@
-Question: Specify some of the essential features of JUnit.
-Instruction: Choose all options that best answer the question. 
-
-JUnit provides test fixtures for sharing common test data
-
-JUnit supports annotation, parameterized, and data-driven testing
-
-JUnit includes assertions for testing expected results
-
-JUnit supports flexible verification or stubbing
+Modulul 14, intitulat "IT&C SECURITY COMPANIES SECTION", prezintă aspecte practice legate de securitatea informatică prin intermediul unui studiu de caz detaliat: proiectul DECWEB – transmiterea declarațiilor fiscale prin Internet. Acest modul evidențiază modul în care tehnologiile IT&C și serviciile profesionale pot îmbunătăți activitățile guvernamentale, subliniind succesul proiectului și evoluția sa viitoare.
+Iată esențialul din acest modul:
+1. Prezentare generală și obiectivele proiectului DECWEB
+• Context: Tehnologiile avansate sunt utilizate nu doar în mediul de afaceri, ci și în strategiile guvernamentale de interacțiune cu societatea civilă și mediul de afaceri, dând naștere unor noi concepte de e-business (G2G, G2B, G2C).
+• Inițiativă în România: Ministerul Comunicațiilor și Tehnologiei Informației, împreună cu Ministerul Finanțelor Publice, a definit cerințele pentru DECWEB.
+• Scopul DECWEB: Este un sistem G2B (Guvern-către-Afaceri) care permite companiilor să-și depună declarațiile fiscale prin Internet.
+• Obiective cheie:
+    ◦ Asigurarea transparenței și eficienței activităților Ministerului Finanțelor Publice.
+    ◦ Proceduri de lucru eficiente și standardizate.
+    ◦ Reducerea cheltuielilor publice și a birocrației.
+    ◦ Asigurarea unui mediu de securitate și încredere foarte ridicat pentru administrarea fondurilor publice.
+    ◦ Depunerea, preluarea, procesarea și interacțiunea automată și mai rapidă între companii și administrațiile fiscale.
+    ◦ Eliminarea fraudei sau a subiectivismului.
+    ◦ Încurajarea introducerii IT-ului și a aplicațiilor integrate de finanțe și contabilitate la nivelul companiilor.
+• Provocare majoră de securitate: Informațiile din DECWEB sunt extrem de sensibile și sistemul este expus la diverse tipuri de atacuri (denial of service, inginerie socială, persuasiune personală). O amenințare majoră era riscul procesării informațiilor malformate, fără garanție de autenticitate și integritate, cu implicații legale serioase.
+• Controale propuse: Implementarea semnăturilor digitale pe toate documentele transmise, însoțite de chitanțe de livrare pentru a notifica companiile despre erori sau mesaje falsificate. Chitanțele de livrare reușite serveau ca dovadă că documentele au fost depuse corect și la timp.
+2. Detaliile proiectului
+• Designul sistemului: DECWEB este un sistem integrat, cu arhitectură de înaltă disponibilitate, asigurând un nivel ridicat de securitate. Este o combinație de tehnologii proprietare și open-source.
+• Componente și implementare:
+    ◦ Definirea unui standard pentru comunicații securizate și transmiterea informațiilor între birourile fiscale și companii.
+    ◦ Crearea unui portal securizat pentru accesul companiilor și inspectorilor financiari.
+    ◦ Implementarea unei Autorități de Certificare (CA) în cadrul Ministerului Finanțelor Publice pentru a sprijini autentificarea bazată pe certificate digitale și criptare avansată.
+    ◦ Dezvoltarea unui software de asistență pentru generarea, verificarea și semnarea electronică a bilanțurilor.
+• Utilizatorii și reticența inițială: Utilizatorii erau obișnuiți cu depunerea pe hârtie și reticenți la schimbare, necesitând un program intensiv de conștientizare și training.
+• Caracteristici tehnice esențiale:
+    ◦ Disponibilitate ridicată și scalabilitate pentru a face față perioadelor de vârf.
+    ◦ Securitate avansată care asigură confidențialitate, autenticitate, integritate și non-repudiere.
+    ◦ Soluție deschisă și flexibilă, capabilă să se interfațeze cu alte sisteme.
+• Arhitectura sistemului: Este un model multi-tier, cu un nivel central (Ministerul Finanțelor Publice – MFP) și nivele locale (Administrațiile Financiare – AF), cu comunicații securizate prin Internet (companii-MFP) și Intranet (MFP-AF).
+• Autentificarea utilizatorilor: Companiile accesează portalul MFP prin Internet și se autentifică folosind certificatele digitale, stabilind o conexiune SSL de 128 de biți. Inspectorii financiari utilizează același portal prin Intranet-ul MFP. Portalul verifică statutul certificatului printr-un server LDAP și este compatibil cu certificate emise de alte CA-uri.
+• Depunerea și controlul bilanțurilor:
+    ◦ O aplicație de asistență ajută companiile să completeze fișierele bilanțului, oferind o interfață ușor de utilizat, copiere din Excel sau aplicații ERP, verificarea corelațiilor și afișarea erorilor, verificarea integrității aplicației, semnătura digitală pe documente și afișare/printare WYSIWYG.
+    ◦ Documentele bilanțului sunt descărcate ca fișiere XML definite de MFP și semnate digital de MFP.
+    ◦ La primire, motorul aplicației din portalul DECWEB verifică integritatea fișierelor, statutul certificatului de semnare și corespondența cu certificatul companiei. Acțiunile sunt înregistrate, iar compania primește o chitanță ca dovadă a operațiunilor reușite sau o notificare a erorilor de transmitere.
+    ◦ Inspectorii financiari pot verifica documentele și pot cere detalii suplimentare, iar companiile pot verifica oricând statutul documentelor lor.
+3. Impactul proiectului
+• Transformare organizațională: Proiectul DECWEB a marcat o schimbare fundamentală pentru MFP, trecând de la activități bazate pe hârtie la un sistem modern, permițând ministerului să-și reducă operațiunile manuale și să se concentreze pe activitatea de bază.
+• Beneficii cheie:
+    ◦ Păstrarea modului de lucru al MFP.
+    ◦ Simplificarea activității companiilor.
+    ◦ Valoare legală similară cu sistemul clasic pe bază de documente.
+    ◦ Asigură cerințele de control IT pentru protecția informațiilor: disponibilitate, autorizare, autenticitate, confidențialitate, integritate, non-repudiere și confidențialitate.
+• Infrastructura de securitate: DECWEB a implementat o infrastructură de securitate informatică impresionantă și instrumente avansate:
+    ◦ Arhitectura PKI: certSAFE Certification Authority, oferind managementul certificatelor digitale, posibilitatea de implementare a recuperării cheilor, time-stamping și module de validare online a certificatelor digitale. A fost dotat cu dispozitive hardware de securitate dedicate (HSM) pentru gestionarea cheilor și politici personalizate.
+    ◦ Sistem de autentificare și autorizare: gateSAFE, un produs versatil de gestionare a identității pentru autentificarea utilizatorilor pe portal, incluzând funcționalități precum PKI-enabling pentru aplicații vechi, conexiuni securizate peste linii nesigure, SSO (Single Sign-On), SSL Acceleration, balansarea sarcinii la nivelul 7 OSI, contabilitate, server web virtual și securitate pentru servicii web.
+    ◦ Mecanisme pentru controlul securității IT la nivelul utilizatorului: aplicație offline pentru completarea, verificarea și semnarea digitală a bilanțurilor.
+    ◦ Programe de training pentru utilizatori, documentație și conștientizare a securității.
+• Recunoaștere: Succesul DECWEB a determinat companiile să solicite MFP utilizarea certificatelor digitale pentru e-mailuri și contracte, transformându-l într-un "standard de facto" pentru implementările de sisteme noi ale Ministerului.
+4. Perspective de viitor
+• Integrare extinsă: Un prim pas a fost integrarea DECWEB în Sistemul Electronic Național, un punct de acces unificat și furnizor de servicii electronice pentru activități G2B și G2C.
+• Dezvoltări viitoare: Proiectul va continua să evolueze pentru a ține pasul cu tehnologiile în schimbare, fie prin introducerea de noi servicii în cadrul DECWEB, fie prin crearea unui sistem mai complex.
+• Elemente necesare pentru viitor:
+    ◦ Mecanisme de time-stamp pentru a îmbunătăți beneficiile semnăturilor digitale.
+    ◦ Servicii de validare a certificatelor pentru CA-ul MFP și cerințe de standarde deschise pentru terți.
+    ◦ Sistem electronic de serii pentru a atribui un număr de serie unic fiecărui document transmis.
+    ◦ Mecanisme de notificare electronică pentru un schimb securizat de mesaje.
+    ◦ Atelier de formulare electronice pentru a permite MFP să proiecteze orice tip de formulare.
+    ◦ Sistem de plată electronică pentru a permite companiilor să-și plătească datoriile fiscale online.
+    ◦ Sistem îmbunătățit de emitere a chitanțelor, folosind semnătura digitală și mecanisme de time-stamp.
+    ◦ Sistem de arhivare pentru stocarea documentelor transmise.
+Modulul 14 oferă o perspectivă concretă asupra aplicării legislației și a tehnologiilor de securitate informatică într-un proiect guvernamental de anvergură, subliniind importanța unei abordări integrate pentru a asigura încrederea și eficiența în mediul digital.
