@@ -1,0 +1,537 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <cstring>
+#include <cstdlib>
+
+#include <openssl/evp.h>
+#include <openssl/aes.h>
+#include <openssl/rsa.h>
+#include <openssl/bn.h>
+#include <openssl/rand.h>
+#include <openssl/err.h>
+
+static std::string to_hex(const unsigned char* data, size_t len) {
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (size_t i = 0; i < len; ++i) {
+        oss << std::setw(2) << (int)data[i];
+    }
+    return oss.str();
+}
+
+static std::vector<unsigned char> from_string(const std::string& s) {
+    return std::vector<unsigned char>(s.begin(), s.end());
+}
+
+static void print_openssl_errors() {
+    unsigned long e;
+    while ((e = ERR_get_error()) != 0) {
+        char buf[256];
+        ERR_error_string_n(e, buf, sizeof(buf));
+        std::cerr << "OpenSSL error: " << buf << "\n";
+    }
+}
+
+class Cipher {
+public:
+    static const unsigned char ALGO_AES_CBC = 1;
+    static const unsigned char ALGO_RSA_PKCS1 = 2;
+
+    static const unsigned char MODE_ENCRYPT = 1;
+    static const unsigned char MODE_DECRYPT = 2;
+
+    unsigned char algorithm;
+    unsigned char mode;
+
+    Cipher(unsigned char algorithm)
+        : algorithm(algorithm), mode(MODE_ENCRYPT) {
+    }
+
+    static Cipher create_instance(unsigned char algorithm) {
+        return Cipher(algorithm);
+    }
+};
+
+class AESCBCCipher : public Cipher {
+private:
+    AES_KEY aes_key;                     
+    unsigned char ivec[16];              
+    std::vector<unsigned char> key_bytes;
+    unsigned short key_bits;          
+
+public:
+    AESCBCCipher() : Cipher(Cipher::ALGO_AES_CBC), key_bits(0) {
+        this->mode = MODE_ENCRYPT;
+        memset(ivec, 0, sizeof(ivec));
+    }
+
+    void init_cipher(unsigned char* user_key,
+        unsigned short int bit_key_length,
+        unsigned short array_key_offset,
+        unsigned char* iv,
+        unsigned short array_iv_offset,
+        unsigned char mode)
+    {
+        this->mode = mode;
+        this->key_bits = bit_key_length;
+
+        // copy IV (16 bytes)
+        memcpy(this->ivec, iv + array_iv_offset, sizeof(this->ivec));
+
+        // store key bytes
+        size_t key_bytes_len = bit_key_length / 8;
+        key_bytes.assign(user_key + array_key_offset, user_key + array_key_offset + key_bytes_len);
+
+        // set AES_key schedule (using low-level AES_set_*_key)
+        if (bit_key_length == 128) {
+            AES_set_encrypt_key(key_bytes.data(), 128, &aes_key);
+            // AES_set_decrypt_key would be used for decryption schedule; but we keep a single AES_KEY as schedule
+        }
+        else if (bit_key_length == 192) {
+            AES_set_encrypt_key(key_bytes.data(), 192, &aes_key);
+        }
+        else if (bit_key_length == 256) {
+            AES_set_encrypt_key(key_bytes.data(), 256, &aes_key);
+        }
+        else {
+            // invalid; but we'll keep key_bits as given
+        }
+    }
+
+    ~AESCBCCipher() {
+        // zero sensitive material
+        if (!key_bytes.empty()) {
+            OPENSSL_cleanse(key_bytes.data(), key_bytes.size());
+        }
+        OPENSSL_cleanse(ivec, sizeof(ivec));
+    }
+
+    // AES-CBC encryption (uses EVP to handle PKCS#7 padding)
+    // Input/Output via std::vector<unsigned char>
+    std::vector<unsigned char> encrypt(const std::vector<unsigned char>& plaintext) {
+        if (key_bytes.empty()) {
+            std::cerr << "AES key not initialized\n";
+            return {};
+        }
+
+        const EVP_CIPHER* cipher = nullptr;
+        if (key_bits == 128) cipher = EVP_aes_128_cbc();
+        else if (key_bits == 192) cipher = EVP_aes_192_cbc();
+        else if (key_bits == 256) cipher = EVP_aes_256_cbc();
+        else {
+            std::cerr << "Unsupported AES key length: " << key_bits << "\n";
+            return {};
+        }
+
+        EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+        if (!ctx) {
+            print_openssl_errors();
+            return {};
+        }
+
+        if (1 != EVP_EncryptInit_ex(ctx, cipher, NULL, key_bytes.data(), ivec)) {
+            print_openssl_errors();
+            EVP_CIPHER_CTX_free(ctx);
+            return {};
+        }
+
+        std::vector<unsigned char> out;
+        out.resize(plaintext.size() + EVP_CIPHER_block_size(cipher));
+        int out_len1 = 0;
+        if (1 != EVP_EncryptUpdate(ctx, out.data(), &out_len1, plaintext.data(), (int)plaintext.size())) {
+            print_openssl_errors();
+            EVP_CIPHER_CTX_free(ctx);
+            return {};
+        }
+
+        int out_len2 = 0;
+        if (1 != EVP_EncryptFinal_ex(ctx, out.data() + out_len1, &out_len2)) {
+            print_openssl_errors();
+            EVP_CIPHER_CTX_free(ctx);
+            return {};
+        }
+
+        out.resize(out_len1 + out_len2);
+        EVP_CIPHER_CTX_free(ctx);
+        return out;
+    }
+
+    // AES-CBC decryption (uses EVP to handle PKCS#7 padding removal)
+    std::vector<unsigned char> decrypt(const std::vector<unsigned char>& ciphertext) {
+        if (key_bytes.empty()) {
+            std::cerr << "AES key not initialized\n";
+            return {};
+        }
+
+        const EVP_CIPHER* cipher = nullptr;
+        if (key_bits == 128) cipher = EVP_aes_128_cbc();
+        else if (key_bits == 192) cipher = EVP_aes_192_cbc();
+        else if (key_bits == 256) cipher = EVP_aes_256_cbc();
+        else {
+            std::cerr << "Unsupported AES key length: " << key_bits << "\n";
+            return {};
+        }
+
+        EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+        if (!ctx) {
+            print_openssl_errors();
+            return {};
+        }
+
+        if (1 != EVP_DecryptInit_ex(ctx, cipher, NULL, key_bytes.data(), ivec)) {
+            print_openssl_errors();
+            EVP_CIPHER_CTX_free(ctx);
+            return {};
+        }
+
+        std::vector<unsigned char> out;
+        out.resize(ciphertext.size() + EVP_CIPHER_block_size(cipher));
+        int out_len1 = 0;
+        if (1 != EVP_DecryptUpdate(ctx, out.data(), &out_len1, ciphertext.data(), (int)ciphertext.size())) {
+            print_openssl_errors();
+            EVP_CIPHER_CTX_free(ctx);
+            return {};
+        }
+
+        int out_len2 = 0;
+        if (1 != EVP_DecryptFinal_ex(ctx, out.data() + out_len1, &out_len2)) {
+            // DecryptFinal can fail on bad padding
+            print_openssl_errors();
+            EVP_CIPHER_CTX_free(ctx);
+            return {};
+        }
+
+        out.resize(out_len1 + out_len2);
+        EVP_CIPHER_CTX_free(ctx);
+        return out;
+    }
+};
+
+//
+// --------------------------- Class RSACipher ---------------------------
+//
+
+class RSACipher : public Cipher {
+private:
+    RSA* key_pair;            // RSA key pair structure
+
+public:
+    static const unsigned char PUBLIC_KEY = 1;
+    static const unsigned char PRIVATE_KEY = 2;
+
+    RSACipher()
+        : Cipher(Cipher::ALGO_RSA_PKCS1), key_pair(nullptr)
+    {
+        this->mode = MODE_ENCRYPT;
+    }
+
+    ~RSACipher() {
+        if (key_pair) {
+            RSA_free(key_pair);
+        }
+        key_pair = nullptr;
+    }
+
+    void init_cipher(unsigned char mode) {
+        this->mode = mode;
+    }
+
+    // Allow to set an externally initialized RSA* (optionally transfer ownership)
+    void set_external_key_pair(RSA* external_rsa, bool take_ownership = false) {
+        if (key_pair) {
+            RSA_free(key_pair);
+        }
+        key_pair = external_rsa;
+    }
+
+    // Generate a key pair (2-prime RSA)
+    int generate_key_pair(int bit_modulus_length, unsigned long public_exp) {
+        if (key_pair) {
+            RSA_free(key_pair);
+            key_pair = nullptr;
+        }
+
+        RSA* rsa = RSA_new();
+        if (!rsa) {
+            print_openssl_errors();
+            return 0;
+        }
+
+        BIGNUM* e = BN_new();
+        if (!e) {
+            RSA_free(rsa);
+            print_openssl_errors();
+            return 0;
+        }
+
+        if (!BN_set_word(e, public_exp)) {
+            BN_free(e);
+            RSA_free(rsa);
+            print_openssl_errors();
+            return 0;
+        }
+
+        if (1 != RSA_generate_key_ex(rsa, bit_modulus_length, e, NULL)) {
+            BN_free(e);
+            RSA_free(rsa);
+            print_openssl_errors();
+            return 0;
+        }
+
+        BN_free(e);
+        key_pair = rsa;
+        return 1; // success
+    }
+
+    /*
+        do_crypto: RSA encrypt/decrypt with PKCS#1 padding.
+        in_buffer, in_offset, byte_in_length -> input
+        byte_out_length -> output length
+        key_type -> PUBLIC_KEY or PRIVATE_KEY
+
+        Returns malloc'ed buffer (caller must free) or NULL on error.
+    */
+    unsigned char* do_crypto(unsigned char* in_buffer,
+        unsigned short in_offset,
+        unsigned short byte_in_length,
+        unsigned short* byte_out_length,
+        unsigned char key_type)
+    {
+        if (!key_pair) {
+            std::cerr << "RSA key_pair not initialized\n";
+            return nullptr;
+        }
+
+        int rsa_size = RSA_size(key_pair);
+        unsigned char* out_buf = (unsigned char*)malloc(rsa_size);
+        if (!out_buf) return nullptr;
+
+        int len = -1;
+
+        if (mode == MODE_ENCRYPT) {
+            if (key_type == PUBLIC_KEY) {
+                len = RSA_public_encrypt(
+                    byte_in_length,
+                    in_buffer + in_offset,
+                    out_buf,
+                    key_pair,
+                    RSA_PKCS1_PADDING
+                );
+            }
+            else {
+                len = RSA_private_encrypt(
+                    byte_in_length,
+                    in_buffer + in_offset,
+                    out_buf,
+                    key_pair,
+                    RSA_PKCS1_PADDING
+                );
+            }
+        }
+        else { // MODE_DECRYPT
+            if (key_type == PUBLIC_KEY) {
+                len = RSA_public_decrypt(
+                    byte_in_length,
+                    in_buffer + in_offset,
+                    out_buf,
+                    key_pair,
+                    RSA_PKCS1_PADDING
+                );
+            }
+            else {
+                len = RSA_private_decrypt(
+                    byte_in_length,
+                    in_buffer + in_offset,
+                    out_buf,
+                    key_pair,
+                    RSA_PKCS1_PADDING
+                );
+            }
+        }
+
+        if (len < 0) {
+            print_openssl_errors();
+            free(out_buf);
+            return nullptr;
+        }
+
+        *byte_out_length = (unsigned short)len;
+        return out_buf;
+    }
+
+    /*
+        sign: generates an RSA signature using SHA-256.
+        in_buffer, in_offset, byte_in_length -> message to sign
+        byte_out_length -> set to signature length
+        Returns: malloc'ed signature buffer (caller must free) or NULL on error.
+        Uses the private key from key_pair.
+    */
+    unsigned char* sign(unsigned char* in_buffer,
+        unsigned short in_offset,
+        unsigned short byte_in_length,
+        unsigned short* byte_out_length)
+    {
+        if (!key_pair) {
+            std::cerr << "RSA key_pair not initialized\n";
+            return nullptr;
+        }
+
+        EVP_PKEY* pkey = EVP_PKEY_new();
+        if (!pkey) {
+            print_openssl_errors();
+            return nullptr;
+        }
+        if (1 != EVP_PKEY_set1_RSA(pkey, key_pair)) {
+            print_openssl_errors();
+            EVP_PKEY_free(pkey);
+            return nullptr;
+        }
+
+        EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+        if (!mdctx) {
+            EVP_PKEY_free(pkey);
+            print_openssl_errors();
+            return nullptr;
+        }
+
+        if (1 != EVP_DigestSignInit(mdctx, NULL, EVP_sha256(), NULL, pkey)) {
+            print_openssl_errors();
+            EVP_MD_CTX_free(mdctx);
+            EVP_PKEY_free(pkey);
+            return nullptr;
+        }
+
+        if (1 != EVP_DigestSignUpdate(mdctx, in_buffer + in_offset, byte_in_length)) {
+            print_openssl_errors();
+            EVP_MD_CTX_free(mdctx);
+            EVP_PKEY_free(pkey);
+            return nullptr;
+        }
+
+        size_t req = 0;
+        if (1 != EVP_DigestSignFinal(mdctx, NULL, &req)) {
+            print_openssl_errors();
+            EVP_MD_CTX_free(mdctx);
+            EVP_PKEY_free(pkey);
+            return nullptr;
+        }
+
+        unsigned char* sig = (unsigned char*)malloc(req);
+        if (!sig) {
+            EVP_MD_CTX_free(mdctx);
+            EVP_PKEY_free(pkey);
+            return nullptr;
+        }
+
+        if (1 != EVP_DigestSignFinal(mdctx, sig, &req)) {
+            print_openssl_errors();
+            free(sig);
+            EVP_MD_CTX_free(mdctx);
+            EVP_PKEY_free(pkey);
+            return nullptr;
+        }
+
+        *byte_out_length = (unsigned short)req;
+
+        EVP_MD_CTX_free(mdctx);
+        EVP_PKEY_free(pkey);
+        return sig;
+    }
+};
+
+//
+// --------------------------- main() ---------------------------
+//
+
+int main() {
+    // Initialize OpenSSL error strings (optional)
+    ERR_load_crypto_strings();
+    OpenSSL_add_all_algorithms();
+
+    // --- Prepare AES key and IV (for demonstration: fixed values) ---
+    // NOTE: For real usage use secure random keys and store them safely.
+    unsigned char key256[32];
+    unsigned char iv[16];
+
+    // For deterministic demo, derive key/iv from RAND but that is random;
+    // instead use a fixed pattern here for reproducibility:
+    for (int i = 0; i < 32; ++i) key256[i] = (unsigned char)(0x10 + i);
+    for (int i = 0; i < 16; ++i) iv[i] = (unsigned char)(0x01 + i);
+
+    // Initialize AESCBCCipher
+    AESCBCCipher aescbc;
+    aescbc.init_cipher(key256, 256, 0, iv, 0, Cipher::MODE_ENCRYPT);
+
+    // Initialize RSACipher and generate key pair
+    RSACipher rsac;
+    if (!rsac.generate_key_pair(2048, RSA_F4)) {
+        std::cerr << "RSA key generation failed\n";
+        print_openssl_errors();
+        return 1;
+    }
+
+    // We will sign with the generated key: rsac.sign(...)
+
+    // Open input and output files
+    std::ifstream infile("wordlist.txt");
+    if (!infile) {
+        std::cerr << "Could not open wordlist.txt for reading\n";
+        return 1;
+    }
+
+    std::ofstream aes_out("aes_encrypted1.txt");
+    if (!aes_out) {
+        std::cerr << "Could not open aes_encrypted.txt for writing\n";
+        return 1;
+    }
+
+    std::ofstream rsa_out("rsa_signatures1.txt");
+    if (!rsa_out) {
+        std::cerr << "Could not open rsa_signatures.txt for writing\n";
+        return 1;
+    }
+
+    std::string line;
+    while (std::getline(infile, line)) {
+        // Trim carriage return if any (windows CRLF)
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+
+        // AES encrypt the line
+        std::vector<unsigned char> plain = from_string(line);
+        // AES-CBC in our encrypt uses the IV stored in the object; re-init to ensure IV not re-used unpredictably for streaming
+        aescbc.init_cipher(key256, 256, 0, iv, 0, Cipher::MODE_ENCRYPT);
+        std::vector<unsigned char> cipher = aescbc.encrypt(plain);
+        std::string hex_cipher = to_hex(cipher.data(), cipher.size());
+        aes_out << hex_cipher << "\n";
+
+        // RSA sign the line (SHA-256)
+        unsigned short sig_len = 0;
+        unsigned char* signature = rsac.sign((unsigned char*)line.c_str(), 0, (unsigned short)line.size(), &sig_len);
+        if (!signature) {
+            std::cerr << "Signing failed for line: " << line << "\n";
+            print_openssl_errors();
+            rsa_out << "\n"; // empty line to keep correspondence
+        }
+        else {
+            std::string hex_sig = to_hex(signature, sig_len);
+            rsa_out << hex_sig << "\n";
+            free(signature);
+        }
+    }
+
+    infile.close();
+    aes_out.close();
+    rsa_out.close();
+
+    // Cleanup OpenSSL
+    EVP_cleanup();
+    CRYPTO_cleanup_all_ex_data();
+    ERR_free_strings();
+
+    std::cout << "Done. Wrote aes_encrypted.txt and rsa_signatures.txt\n";
+    return 0;
+}
